@@ -31,10 +31,25 @@ jobs:
           tags: |
             ${{ vars.DOCKERHUB_USERNAME }}/fake-shop:latest
             ${{ vars.DOCKERHUB_USERNAME }}/fake-shop:v${{ github.run_number }}
-      
+  
+  request-review: 
+    runs-on: ubuntu-latest 
+    needs: [ci] 
+    steps: 
+      - name: Solicitar Revisão 
+        uses: peter-evans/create-or-update-comment@v2 
+        with: 
+          issue-number: ${{ github.event.pull_request.number }} 
+          body: | 
+            @KakoF, por favor revise esta pull request.
+
   cd:
     runs-on: ubuntu-latest
     needs: [ci]
+    permissions:
+      id-token: write
+      contents: read
+      actions: read
     steps:
       - name: Checkout do projeto
         # Essa action já sabe que é o repositório que ela pertence
@@ -49,7 +64,13 @@ jobs:
           
       
       - name: Configurar o Kubectl
-        run: echo "Executando comando aws eks update-kubeconfig"
+        # Nome do cluster poderia estar em vars ou secrets
+        run: aws eks update-kubeconfig --name eks-first-cluster
       
-      - name: Deploy od Manifestos no Kubernetes
-        run: echo "Executando comando kubectl apply"
+      - name: Deploy do Manifesto no Kubernetes
+        uses: Azure/k8s-deploy@v5
+        with:
+          manifests: |
+              k8s/deployment.yaml
+          images: |
+              ${{ vars.DOCKERHUB_USERNAME }}/fake-shop:v${{ github.run_number }}
