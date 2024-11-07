@@ -11,8 +11,15 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout do projeto
+        # Essa action já sabe que é o repositório que ela pertence
+        uses: actions/checkout@v4
+
       - name: Autenticar no Docker Hub
-        run: echo "Executando comando docker login"
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       
       - name: Construção Imagem Docker
         run: echo "Executando comando docker build"
