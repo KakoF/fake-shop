@@ -31,17 +31,7 @@ jobs:
           tags: |
             ${{ vars.DOCKERHUB_USERNAME }}/fake-shop:latest
             ${{ vars.DOCKERHUB_USERNAME }}/fake-shop:v${{ github.run_number }}
-  
-  Aprovador: 
-    runs-on: ubuntu-latest 
-    needs: [CI] 
-    steps: 
-      - name: Solicitar Revisão 
-        uses: peter-evans/create-or-update-comment@v2 
-        with: 
-          issue-number: ${{ github.run_number }}
-          body: | 
-            @KakoF, por favor revise esta pull request.
+
 
   CD:
     runs-on: ubuntu-latest
